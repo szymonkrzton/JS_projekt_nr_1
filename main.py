@@ -1,8 +1,11 @@
 from Ticket import Ticket
 from appJar import gui
 import MoneyKeeper as mk
+import Machine as m
 
+ticketMachine = m.Machine()
 addedMoney = mk.MoneyKeeper()
+ticketMachine.start(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
 tickets = [None for _ in range(6)]
 tickets[0] = Ticket("Ulgowy 20min", 200, "u20", "U")
@@ -14,9 +17,21 @@ tickets[5] = Ticket("Normalny 60min", 600, "u60", "N")
 
 
 def update():
-    added = "Wpłacono " + str(addedMoney.sum() / 100) + " zł"
-    app.setLabel("Wpłacone", added)
+    added = "Wrzucono " + str(addedMoney.sum() / 100) + " zł"
+    app.setLabel("Wrzucone", added)
 
+    currentState = "Aktualny stan automatu: " + str(ticketMachine.sum() / 100) + " zł"
+    app.setLabel("Stan", currentState)
+
+    price = 0
+    basket = app.getAllListItems("addedTickets")
+    for i in range(6):
+        for j in basket:
+            if j == tickets[i].returnName():
+                price += tickets[i].returnPrice()
+
+    summary = "Suma " + str(price / 100) + " zł"
+    app.setLabel("Suma", summary)
 
 app = gui("Automat biletowy MPK")
 
@@ -24,9 +39,11 @@ app = gui("Automat biletowy MPK")
 def press(btn):
     print(btn)
 
+
     for i in range(6):
         if btn == tickets[i].returnName():
             app.addListItem("addedTickets", tickets[i].returnName())
+            update()
 
     if btn == "Wyczyść":
         app.clearListBox("addedTickets", callFunction=True)
@@ -133,6 +150,43 @@ def press(btn):
         addedMoney.returnMoney()
         update()
 
+    if btn == "Zapłać":
+        basket = app.getAllListItems("addedTickets")
+
+        if not basket:
+            app.warningBox("Error", "Koszyk jest pusty!")
+        else:
+            price = 0
+            for i in range(6):
+                for j in basket:
+                    if j == tickets[i].returnName():
+                        price += tickets[i].returnPrice()
+
+            if price > addedMoney.sum():
+                app.warningBox("Error", "Proszę zapłacić pełną sumę")
+            elif price == addedMoney.sum():
+                app.infoBox("Success", "Dziękujemy za zakup biletów")
+                ticketMachine.addList(list(addedMoney.listOfMoney.values()))
+                addedMoney.setZero()
+                app.clearListBox("addedTickets", callFunction=True)
+                update()
+            elif price < addedMoney.sum():
+                if ticketMachine.returnChange(price, addedMoney.sum()) != -1:
+                    pair = ticketMachine.returnChange(price, addedMoney.sum())
+                    ticketMachine.set(pair[1])
+                    ticketMachine.addList(list(addedMoney.listOfMoney.values()))
+                    app.infoBox("Zwrócono", pair[0])
+                    addedMoney.setZero()
+                    app.clearListBox("addedTickets", callFunction=True)
+                    update()
+                else:
+                    app.warningBox("Error", "Niestety automat nie może wydać reszty, tylko odliczona kwota")
+
+
+
+
+
+
 
 app.startLabelFrame("Dodaj bilety: ", 0, 0)
 
@@ -176,8 +230,15 @@ app.stopLabelFrame()
 
 app.startLabelFrame("Płatność", 1, 1)
 
-added = "Wpłacono " + str(addedMoney.sum()/100) + " zł"
-app.addLabel("Wpłacone", added)
+currentState = "Aktualny stan automatu: " + str(ticketMachine.sum()/100) + " zł"
+app.addLabel("Stan", currentState)
+
+added = "Wrzucono " + str(addedMoney.sum()/100) + " zł"
+app.addLabel("Wrzucone", added)
+
+summary = "Suma " + str(0/100) + " zł"
+app.addLabel("Suma", summary)
+
 
 app.addButton("Zwrot", press, 1, 0)
 app.addButton("Zapłać", press, 1, 1)
