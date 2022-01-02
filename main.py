@@ -7,16 +7,17 @@ ticketMachine = m.Machine()
 addedMoney = mk.MoneyKeeper()
 ticketMachine.start(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
-tickets = [None for _ in range(6)]
+tickets = [None for _ in range(6)] #list comprehensions
 tickets[0] = Ticket("Ulgowy 20min", 200, "u20", "U")
 tickets[1] = Ticket("Ulgowy 40min", 250, "u40", "U")
 tickets[2] = Ticket("Ulgowy 60min", 300, "u60", "U")
-tickets[3] = Ticket("Normalny 20min", 400, "u20", "N")
-tickets[4] = Ticket("Normalny 40min", 500, "u40", "N")
-tickets[5] = Ticket("Normalny 60min", 600, "u60", "N")
+tickets[3] = Ticket("Normalny 20min", 400, "n20", "N")
+tickets[4] = Ticket("Normalny 40min", 500, "n40", "N")
+tickets[5] = Ticket("Normalny 60min", 600, "n60", "N")
 
 
 def update():
+    """Funkcja pozwalająca na bierząco aktualizować stan automatu"""
     added = "Wrzucono " + str(addedMoney.sum() / 100) + " zł"
     app.setLabel("Wrzucone", added)
 
@@ -37,7 +38,9 @@ app = gui("Automat biletowy MPK")
 
 
 def press(btn):
+    """Funkcja, która obsługuje działanie przycisków"""
 
+    #dodanie biletu do listy
     for i in range(6):
         if btn == tickets[i].returnName():
             if not app.getEntry(tickets[i].returnId()):
@@ -49,10 +52,12 @@ def press(btn):
                 update()
                 app.clearEntry(tickets[i].returnId())
 
+    #przycisk wyczyść
     if btn == "Wyczyść":
         app.clearListBox("addedTickets")
         update()
 
+    #przycisk 1 grosz
     if btn == "1 grosz":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -67,6 +72,7 @@ def press(btn):
             update()
             app.clearEntry('1gr')
 
+    #przycisk 2 grosze
     if btn == "2 grosze":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -81,6 +87,7 @@ def press(btn):
             update()
             app.clearEntry('2gr')
 
+    #przycisk 5 groszy
     if btn == "5 groszy":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -95,6 +102,7 @@ def press(btn):
             update()
             app.clearEntry('5gr')
 
+    #przycisk 10 groszy
     if btn == "10 groszy":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -109,6 +117,7 @@ def press(btn):
             update()
             app.clearEntry('10gr')
 
+    #przycisk 20 groszy
     if btn == "20 groszy":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -123,6 +132,7 @@ def press(btn):
             update()
             app.clearEntry('20gr')
 
+    #przycisk 50 groszy
     if btn == "50 groszy":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -137,6 +147,7 @@ def press(btn):
             update()
             app.clearEntry('50gr')
 
+    #przycisk 1 złoty
     if btn == "1 złoty":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -151,6 +162,7 @@ def press(btn):
             update()
             app.clearEntry('1zl')
 
+    #przycisk 2 złote
     if btn == "2 złote":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -165,6 +177,7 @@ def press(btn):
             update()
             app.clearEntry('2zl')
 
+    #przycisk 5 złotych
     if btn == "5 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -179,6 +192,7 @@ def press(btn):
             update()
             app.clearEntry('5zl')
 
+    #przycisk 10 złotych
     if btn == "10 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -193,6 +207,7 @@ def press(btn):
             update()
             app.clearEntry('10zl')
 
+    #przycisk 20 złotych
     if btn == "20 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -207,6 +222,7 @@ def press(btn):
             update()
             app.clearEntry('20zl')
 
+    #przycisk 50 złotych
     if btn == "50 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -221,6 +237,7 @@ def press(btn):
             update()
             app.clearEntry('50zl')
 
+    #przycisk 100 złotych
     if btn == "100 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -235,6 +252,7 @@ def press(btn):
             update()
             app.clearEntry('100zl')
 
+    #przycisk 200 złotych
     if btn == "200 złotych":
         if len(app.getAllListItems('addedTickets')) == 0:
             app.infoBox("Błąd!", "Najpierw proszę wybrać bilet!")
@@ -249,11 +267,13 @@ def press(btn):
             update()
             app.clearEntry('200zl')
 
+    #przycisk Zwrot
     if btn == "Zwrot":
         app.infoBox("Zwrócono", addedMoney.listOfMoney)
-        addedMoney.returnMoney()
+        addedMoney.setZero()
         update()
 
+    #przycisk Zapłać
     if btn == "Zapłać":
         basket = app.getAllListItems("addedTickets")
 
@@ -295,7 +315,7 @@ def press(btn):
 
 
 
-
+#menu wyboru biletów
 app.startLabelFrame("Dodaj bilety: ", 0, 0)
 
 app.addButton("Ulgowy 20min", press, 0, 0)
@@ -320,7 +340,7 @@ app.setEntryDefault("n60", "Ilość biletów (domyślnie 1)")
 app.stopLabelFrame()
 
 
-
+#lista dodanych biletów
 app.startLabelFrame("Dodane bilety:", 0, 1)
 
 app.addListBox("addedTickets", [])
@@ -328,7 +348,7 @@ app.addButton("Wyczyść", press, 0, 1)
 
 app.stopLabelFrame()
 
-
+#menu dodawania pieniędzy
 app.startLabelFrame("Nominały:", 1, 0)
 
 app.addButton("1 grosz", press, 0, 0)
@@ -376,6 +396,7 @@ app.setEntryDefault("200zl", "Ilość monet (domyślnie 1)")
 
 app.stopLabelFrame()
 
+#menu płatności
 app.startLabelFrame("Płatność", 1, 1)
 
 currentState = "Aktualny stan automatu: " + str(ticketMachine.sum()/100) + " zł"

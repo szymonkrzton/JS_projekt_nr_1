@@ -1,56 +1,31 @@
-from collections import Counter
-
 class MoneyKeeper:
+    """Klasa po której dziedziczy klasa Machine"""
     def __init__(self):
         self.listOfMoney = {'1': 0, '2': 0, '5': 0, '10': 0, '20': 0, '50': 0, '100': 0, '200': 0, '500': 0, '1000': 0, '2000': 0, '5000': 0, '10000': 0, '20000': 0}
 
     def add(self, money, count):
+        """Klasa dodająca monety do listy"""
         self.listOfMoney[money] = self.listOfMoney[money] + count
 
     def addList(self, list):
-        self.listOfMoney['1'] += list[0]
-        self.listOfMoney['2'] += list[1]
-        self.listOfMoney['5'] += list[2]
-        self.listOfMoney['10'] += list[3]
-        self.listOfMoney['20'] += list[4]
-        self.listOfMoney['50'] += list[5]
-        self.listOfMoney['100'] += list[6]
-        self.listOfMoney['200'] += list[7]
-        self.listOfMoney['500'] += list[8]
-        self.listOfMoney['1000'] += list[9]
-        self.listOfMoney['2000'] += list[10]
-        self.listOfMoney['5000'] += list[11]
-        self.listOfMoney['10000'] += list[12]
-        self.listOfMoney['20000'] += list[13]
+        """Klasa pozwalająca dodać ilości monet zgodnie z podaną listą"""
+        key_list = ['1', '2', '5', '10', '20', '50', '100', '200', '500', '1000', '2000', '5000', '10000', '20000']
+        self.listOfMoney = {key_list[i]: self.listOfMoney[key_list[i]] + list[i] for i in range(len(key_list))} #dict comprehensions
 
     def printList(self):
+        """Funkcja wyświetlająca stan automatu"""
         for key, value in self.listOfMoney.items():
             print(key, value, end=' ')
 
     def sum(self):
+        """Funkcja zwracająca sumę pieniędzy"""
         suma = 0
         for i in self.listOfMoney.items():
             suma += int(i[0])*i[1]
         return suma
 
-    def returnMoney(self):
-        for key, value in self.listOfMoney.items():
-            self.listOfMoney[key] = 0
-
     def setZero(self):
-        self.listOfMoney['1'] = 0
-        self.listOfMoney['2'] = 0
-        self.listOfMoney['5'] = 0
-        self.listOfMoney['10'] = 0
-        self.listOfMoney['20'] = 0
-        self.listOfMoney['50'] = 0
-        self.listOfMoney['100'] = 0
-        self.listOfMoney['200'] = 0
-        self.listOfMoney['500'] = 0
-        self.listOfMoney['1000'] = 0
-        self.listOfMoney['2000'] = 0
-        self.listOfMoney['5000'] = 0
-        self.listOfMoney['10000'] = 0
-        self.listOfMoney['20000'] = 0
-
+        """Funkcja ustawiająca stan automatu/wrzuconych monet na 0"""
+        key_list = ['1', '2', '5', '10', '20', '50', '100', '200', '500', '1000', '2000', '5000', '10000', '20000']
+        self.listOfMoney = {k: 0 for k in key_list} #dict comprehensions
 

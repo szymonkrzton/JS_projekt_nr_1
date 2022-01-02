@@ -1,4 +1,5 @@
 class Item:
+    """Klasa Item po której dziedziczy klasa Ticket"""
     def __init__(self, name, price, id):
         self.name = name
         self.price = price
