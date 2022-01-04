@@ -1,10 +1,9 @@
-from Ticket import Ticket
 from appJar import gui
-import MoneyKeeper as mk
-import Machine as m
+from Machine import *
+from Ticket import Ticket
 
-ticketMachine = m.Machine()
-addedMoney = mk.MoneyKeeper()
+ticketMachine = Machine()
+addedMoney = MoneyKeeper()
 ticketMachine.start(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
 tickets = [None for _ in range(6)] #list comprehensions
@@ -15,32 +14,10 @@ tickets[3] = Ticket("Normalny 20min", 400, "n20", "N")
 tickets[4] = Ticket("Normalny 40min", 500, "n40", "N")
 tickets[5] = Ticket("Normalny 60min", 600, "n60", "N")
 
-
-def update():
-    """Funkcja pozwalająca na bierząco aktualizować stan automatu"""
-    added = "Wrzucono " + str(addedMoney.sum() / 100) + " zł"
-    app.setLabel("Wrzucone", added)
-
-    currentState = "Aktualny stan automatu: " + str(ticketMachine.sum() / 100) + " zł"
-    app.setLabel("Stan", currentState)
-
-    price = 0
-    basket = app.getAllListItems("addedTickets")
-    for i in range(6):
-        for j in basket:
-            if j == tickets[i].returnName():
-                price += tickets[i].returnPrice()
-
-    summary = "Suma " + str(price / 100) + " zł"
-    app.setLabel("Suma", summary)
-
 app = gui("Automat biletowy MPK")
 
-
-def press(btn):
-    """Funkcja, która obsługuje działanie przycisków"""
-
-    #dodanie biletu do listy
+def addTicket(btn):
+    """Funkcja odpowiadająca za dodawanie biletów do koszyka"""
     for i in range(6):
         if btn == tickets[i].returnName():
             if not app.getEntry(tickets[i].returnId()):
@@ -52,10 +29,13 @@ def press(btn):
                 update()
                 app.clearEntry(tickets[i].returnId())
 
-    #przycisk wyczyść
-    if btn == "Wyczyść":
-        app.clearListBox("addedTickets")
-        update()
+def clearBasket():
+    """Funkcja czyszcząca koszyk"""
+    app.clearListBox("addedTickets")
+    update()
+
+def addMoney(btn):
+    """Funkcja, która odpowiada za wrzucanie monet"""
 
     #przycisk 1 grosz
     if btn == "1 grosz":
@@ -267,73 +247,87 @@ def press(btn):
             update()
             app.clearEntry('200zl')
 
-    #przycisk Zwrot
-    if btn == "Zwrot":
-        app.infoBox("Zwrócono", addedMoney.listOfMoney)
-        addedMoney.setZero()
-        update()
+def returnMoney():
+    """Funkcja zwracająca wrzucone pieniądze"""
+    app.infoBox("Zwrócono", addedMoney.listOfMoney)
+    addedMoney.setZero()
+    update()
 
-    #przycisk Zapłać
-    if btn == "Zapłać":
-        basket = app.getAllListItems("addedTickets")
+def pay():
+    """Funkcja służąca do zapłaty"""
+    basket = app.getAllListItems("addedTickets")
 
-        if not basket:
-            app.warningBox("Error", "Koszyk jest pusty!")
-        else:
-            price = 0
-            for i in range(6):
-                for j in basket:
-                    if j == tickets[i].returnName():
-                        price += tickets[i].returnPrice()
+    if not basket:
+        app.warningBox("Error", "Koszyk jest pusty!")
+    else:
+        price = 0
+        for i in range(6):
+            for j in basket:
+                if j == tickets[i].returnName():
+                    price += tickets[i].returnPrice()
 
-            if price > addedMoney.sum():
-                app.warningBox("Error", "Proszę zapłacić pełną sumę")
-            elif price == addedMoney.sum():
-                app.infoBox("Success", "Dziękujemy za zakup biletów")
+        if price > addedMoney.sum():
+            app.warningBox("Error", "Proszę zapłacić pełną sumę")
+        elif price == addedMoney.sum():
+            app.infoBox("Success", "Dziękujemy za zakup biletów")
+            ticketMachine.addList(list(addedMoney.listOfMoney.values()))
+            addedMoney.setZero()
+            app.clearListBox("addedTickets")
+            update()
+        elif price < addedMoney.sum():
+            if ticketMachine.returnChange(price, addedMoney.sum()) != -1:
+                pair = ticketMachine.returnChange(price, addedMoney.sum())
+                ticketMachine.set(pair[1])
                 ticketMachine.addList(list(addedMoney.listOfMoney.values()))
+                app.infoBox("Success", "Dziękujemy za zakup biletów")
+                app.infoBox("Zwrócono", pair[0])
                 addedMoney.setZero()
                 app.clearListBox("addedTickets")
                 update()
-            elif price < addedMoney.sum():
-                if ticketMachine.returnChange(price, addedMoney.sum()) != -1:
-                    pair = ticketMachine.returnChange(price, addedMoney.sum())
-                    ticketMachine.set(pair[1])
-                    ticketMachine.addList(list(addedMoney.listOfMoney.values()))
-                    app.infoBox("Success", "Dziękujemy za zakup biletów")
-                    app.infoBox("Zwrócono", pair[0])
-                    addedMoney.setZero()
-                    app.clearListBox("addedTickets")
-                    update()
-                else:
-                    app.warningBox("Error", "Niestety automat nie może wydać reszty, tylko odliczona kwota")
-                    app.infoBox("Zwrócono", addedMoney.listOfMoney)
-                    update()
+            else:
+                app.warningBox("Error", "Niestety automat nie może wydać reszty, tylko odliczona kwota")
+                app.infoBox("Zwrócono", addedMoney.listOfMoney)
+                addedMoney.setZero()
+                update()
 
+def update():
+    """Funkcja pozwalająca na bierząco aktualizować stan automatu"""
+    added = "Wrzucono " + str(addedMoney.sum() / 100) + " zł"
+    app.setLabel("Wrzucone", added)
 
+    currentState = "Aktualny stan automatu: " + str(ticketMachine.sum() / 100) + " zł"
+    app.setLabel("Stan", currentState)
 
+    price = 0
+    basket = app.getAllListItems("addedTickets")
+    for i in range(6):
+        for j in basket:
+            if j == tickets[i].returnName():
+                price += tickets[i].returnPrice()
 
+    summary = "Suma " + str(price / 100) + " zł"
+    app.setLabel("Suma", summary)
 
-
-
+#class Interface:
 #menu wyboru biletów
 app.startLabelFrame("Dodaj bilety: ", 0, 0)
 
-app.addButton("Ulgowy 20min", press, 0, 0)
+app.addButton("Ulgowy 20min", addTicket, 0, 0)
 app.addNumericEntry("u20", 0, 1)
 app.setEntryDefault("u20", "Ilość biletów (domyślnie 1)")
-app.addButton("Ulgowy 40min", press, 1, 0)
+app.addButton("Ulgowy 40min", addTicket, 1, 0)
 app.addNumericEntry("u40", 1, 1)
 app.setEntryDefault("u40", "Ilość biletów (domyślnie 1)")
-app.addButton("Ulgowy 60min", press, 2, 0)
+app.addButton("Ulgowy 60min", addTicket, 2, 0)
 app.addNumericEntry("u60", 2, 1)
 app.setEntryDefault("u60", "Ilość biletów (domyślnie 1)")
-app.addButton("Normalny 20min", press, 0, 2)
+app.addButton("Normalny 20min", addTicket, 0, 2)
 app.addNumericEntry("n20", 0, 3)
 app.setEntryDefault("n20", "Ilość biletów (domyślnie 1)")
-app.addButton("Normalny 40min", press, 1, 2)
+app.addButton("Normalny 40min", addTicket, 1, 2)
 app.addNumericEntry("n40", 1, 3)
 app.setEntryDefault("n40", "Ilość biletów (domyślnie 1)")
-app.addButton("Normalny 60min", press, 2, 2)
+app.addButton("Normalny 60min", addTicket, 2, 2)
 app.addNumericEntry("n60", 2, 3)
 app.setEntryDefault("n60", "Ilość biletów (domyślnie 1)")
 
@@ -344,53 +338,53 @@ app.stopLabelFrame()
 app.startLabelFrame("Dodane bilety:", 0, 1)
 
 app.addListBox("addedTickets", [])
-app.addButton("Wyczyść", press, 0, 1)
+app.addButton("Wyczyść", clearBasket, 0, 1)
 
 app.stopLabelFrame()
 
 #menu dodawania pieniędzy
 app.startLabelFrame("Nominały:", 1, 0)
 
-app.addButton("1 grosz", press, 0, 0)
+app.addButton("1 grosz", addMoney, 0, 0)
 app.addNumericEntry("1gr", 0, 1)
 app.setEntryDefault("1gr", "Ilość monet (domyślnie 1)")
-app.addButton("2 grosze", press, 1, 0)
+app.addButton("2 grosze", addMoney, 1, 0)
 app.addNumericEntry("2gr", 1, 1)
 app.setEntryDefault("2gr", "Ilość monet (domyślnie 1)")
-app.addButton("5 groszy", press, 2, 0)
+app.addButton("5 groszy", addMoney, 2, 0)
 app.addNumericEntry("5gr", 2, 1)
 app.setEntryDefault("5gr", "Ilość monet (domyślnie 1)")
-app.addButton("10 groszy", press, 3, 0)
+app.addButton("10 groszy", addMoney, 3, 0)
 app.addNumericEntry("10gr", 3, 1)
 app.setEntryDefault("10gr", "Ilość monet (domyślnie 1)")
-app.addButton("20 groszy", press, 4, 0)
+app.addButton("20 groszy", addMoney, 4, 0)
 app.addNumericEntry("20gr", 4, 1)
 app.setEntryDefault("20gr", "Ilość monet (domyślnie 1)")
-app.addButton("50 groszy", press, 5, 0)
+app.addButton("50 groszy", addMoney, 5, 0)
 app.addNumericEntry("50gr", 5, 1)
 app.setEntryDefault("50gr", "Ilość monet (domyślnie 1)")
-app.addButton("1 złoty", press, 6, 0)
+app.addButton("1 złoty", addMoney, 6, 0)
 app.addNumericEntry("1zl", 6, 1)
 app.setEntryDefault("1zl", "Ilość monet (domyślnie 1)")
-app.addButton("2 złote", press, 0, 2)
+app.addButton("2 złote", addMoney, 0, 2)
 app.addNumericEntry("2zl", 0, 3)
 app.setEntryDefault("2zl", "Ilość monet (domyślnie 1)")
-app.addButton("5 złotych", press, 1, 2)
+app.addButton("5 złotych", addMoney, 1, 2)
 app.addNumericEntry("5zl", 1, 3)
 app.setEntryDefault("5zl", "Ilość monet (domyślnie 1)")
-app.addButton("10 złotych", press, 2, 2)
+app.addButton("10 złotych", addMoney, 2, 2)
 app.addNumericEntry("10zl", 2, 3)
 app.setEntryDefault("10zl", "Ilość monet (domyślnie 1)")
-app.addButton("20 złotych", press, 3, 2)
+app.addButton("20 złotych", addMoney, 3, 2)
 app.addNumericEntry("20zl", 3, 3)
 app.setEntryDefault("20zl", "Ilość monet (domyślnie 1)")
-app.addButton("50 złotych", press, 4, 2)
+app.addButton("50 złotych", addMoney, 4, 2)
 app.addNumericEntry("50zl", 4, 3)
 app.setEntryDefault("50zl", "Ilość monet (domyślnie 1)")
-app.addButton("100 złotych", press, 5, 2)
+app.addButton("100 złotych", addMoney, 5, 2)
 app.addNumericEntry("100zl", 5, 3)
 app.setEntryDefault("100zl", "Ilość monet (domyślnie 1)")
-app.addButton("200 złotych", press, 6, 2)
+app.addButton("200 złotych", addMoney, 6, 2)
 app.addNumericEntry("200zl", 6, 3)
 app.setEntryDefault("200zl", "Ilość monet (domyślnie 1)")
 
@@ -409,8 +403,8 @@ summary = "Suma " + str(0/100) + " zł"
 app.addLabel("Suma", summary)
 
 
-app.addButton("Zwrot", press)
-app.addButton("Zapłać", press)
+app.addButton("Zwrot", returnMoney)
+app.addButton("Zapłać", pay)
 
 app.stopLabelFrame()
 
