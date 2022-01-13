@@ -12,11 +12,6 @@ class MoneyKeeper:
         key_list = ['1', '2', '5', '10', '20', '50', '100', '200', '500', '1000', '2000', '5000', '10000', '20000']
         self.listOfMoney = {key_list[i]: self.listOfMoney[key_list[i]] + list[i] for i in range(len(key_list))} #dict comprehensions
 
-    def printList(self):
-        """Funkcja wyświetlająca stan automatu"""
-        for key, value in self.listOfMoney.items():
-            print(key, value, end=' ')
-
     def sum(self):
         """Funkcja zwracająca sumę pieniędzy"""
         suma = 0
