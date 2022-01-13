@@ -4,11 +4,11 @@ class MoneyKeeper:
         self.listOfMoney = {'1': 0, '2': 0, '5': 0, '10': 0, '20': 0, '50': 0, '100': 0, '200': 0, '500': 0, '1000': 0, '2000': 0, '5000': 0, '10000': 0, '20000': 0}
 
     def add(self, money, count):
-        """Klasa dodająca monety do listy"""
+        """Funkcja dodająca monety do listy"""
         self.listOfMoney[money] = self.listOfMoney[money] + count
 
     def addList(self, list):
-        """Klasa pozwalająca dodać ilości monet zgodnie z podaną listą"""
+        """Funkcja pozwalająca dodać ilości monet zgodnie z podaną listą"""
         key_list = ['1', '2', '5', '10', '20', '50', '100', '200', '500', '1000', '2000', '5000', '10000', '20000']
         self.listOfMoney = {key_list[i]: self.listOfMoney[key_list[i]] + list[i] for i in range(len(key_list))} #dict comprehensions
 
