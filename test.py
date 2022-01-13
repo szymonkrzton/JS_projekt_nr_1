@@ -11,7 +11,7 @@ class MachineTest(unittest.TestCase):
         ticket = Ticket("Ulgowy 20min", 200, "u20", "U")
         ticketMachine.start(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
         ticketMachine.add('500', 1)
-        self.assertNotEqual(-1 or 0, ticketMachine.returnChange(ticket.returnPrice(), ticketMachine.sum()))
+        self.assertNotEqual(-1, ticketMachine.returnChange(ticket.returnPrice(), ticketMachine.sum()))
 
     def testOverpaymentNoChange(self):
         """Tylko odliczona kwota"""
